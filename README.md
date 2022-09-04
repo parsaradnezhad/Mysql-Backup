@@ -1,22 +1,38 @@
 ## Mysql-Backup :
 
-Backup mysql database from container :
+I am gonna use this image for back-up mysql database : https://hub.docker.com/r/imixs/backup
+
+this is a back-up image with lots of features that you can read in image overview.
+
+### How to use :
+
+We can add this as a service to our docker-compose so we have always backup if we have mysql there.
+
 ```
-docker exec "$CONTAINER-NAME" /usr/bin/mysqldump -u root --password="$PASSWORD" --all-databases > "$CONTAINER-NAME-DATE"
-```
->You can zip your backup file :
-```
-bzip2 -k "$CONTAINER-NAME-DATE"
-```
-Restore Backup :
->You can unzip your backup file :
-```
-bzip2 -d "$CONTAINER-NAME-DATE".bz2
-```
-```
-cat "$CONTAINER-NAME-DATE" | "$CONTAINER-NAME" docker exec -i  /usr/bin/mysql -u root --password="$PASSWORD" --all-databases
+backup:
+     image: imixs/backup
+     environment:
+      SETUP_CRON: "SET THIS AS YOUR NEEDS"
+      BACKUP_DB_TYPE: "MYSQL"
+      BACKUP_DB_USER: “$DB_USER”
+      BACKUP_DB_PASSWORD: “$DB_PASSWORD”
+      BACKUP_DB_HOST: “$DB_HOST”
+      BACKUP_LOCAL_ROLLING: “5”
 ```
 
-### Conclusion :
+this image has a lots of env variables which done different things but which we used above is enough for us.
 
-In our case , because we only need back-up from mysql databases and there is not anything else which has value for us , the best case scenario is the commands that i have said above , which back-up all databases of mysql in any container we want and compress it ; this will let us to restore our backup easily at anytime we want.
+All backups are located in the following local directory:
+```
+/root/backups/
+```
+In the backup space, the files are located at:
+```
+/$BACKUP_ROOT_DIR/$BACKUP_SERVICE_NAME/
+```
+Each backup file has a time stamp prefix indicating the backup time:
+```
+2018-01-07_03:00_dump.tar.gz
+```
+
+For more information and features check image overview.
