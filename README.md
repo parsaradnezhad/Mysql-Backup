@@ -1,38 +1,48 @@
-## Mysql-Backup :
+## Files:
 
-I am gonna use this image for back-up mysql database : https://hub.docker.com/r/imixs/backup
+We have 4 important file:
+1. crontab.conf
+2. Dockerfile
+3. entry.sh
+4. script.sh
 
-this is a back-up image with lots of features that you can read in image overview.
+- crontab.conf:
+```
+0 0 1 * * /script.sh
+```
+- Dockerfile:
+```
+FROM mysql:5.7.26
+RUN apt-get update && apt-get install -y cron
+ADD crontab.conf /crontab.conf
+ADD script.sh /script.sh
+COPY entry.sh /entry.sh
+RUN chmod 755 /script.sh /entry.sh
+RUN /usr/bin/crontab /crontab.conf
+CMD [/entry.sh]
+```
+- entry.sh:
+```
+#!/bin/sh
+/usr/sbin/cron -f -l 8
+```
+- script.sh:
+```
+#!/bin/bash
+mysql_password=your_mysql_password
+mysql_db=your_mysql_db
+mysql_user=your_mysql_user
+mysql_host=your_mysql_host
+mysql_port=your_mysql_port
+backup_dir=your_backup_path
 
-### How to use :
+dt=$(date +'%Y%m%d_%H%M')
+echo "Backup starts: $(date + "%Y-%m-%d %H:%M:%S")"
 
-We can add this as a service to our docker-compose so we have always backup if we have mysql there.
 
-```
-backup:
-     image: imixs/backup
-     environment:
-      SETUP_CRON: "SET THIS AS YOUR NEEDS"
-      BACKUP_DB_TYPE: "MYSQL"
-      BACKUP_DB_USER: “$DB_USER”
-      BACKUP_DB_PASSWORD: “$DB_PASSWORD”
-      BACKUP_DB_HOST: “$DB_HOST”
-      BACKUP_LOCAL_ROLLING: “5”
-```
+# execute the backup command:
+mysqldump -h $mysql_host -P $mysql_port -u $mysql_user -p $mysql_password $mysql_db --single-transaction --quick --lock-tables=false > $backup_dir/mysql_backup_$dt.sql
 
-this image has a lots of env variables which done different things but which we used above is enough for us.
-
-All backups are located in the following local directory:
+find $backup_dir -mtime +7 -type f -name '*.sql' -exec rm -rf {} \;
+echo "Backup ends: $(date + "%Y-%m-%d %H:%M:%S")"
 ```
-/root/backups/
-```
-In the backup space, the files are located at:
-```
-/$BACKUP_ROOT_DIR/$BACKUP_SERVICE_NAME/
-```
-Each backup file has a time stamp prefix indicating the backup time:
-```
-2018-01-07_03:00_dump.tar.gz
-```
-
-For more information and features check image overview.
