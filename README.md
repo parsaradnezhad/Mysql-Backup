@@ -14,7 +14,7 @@ this will run our scrirpt monthly
 ```
 - Dockerfile:
 ```
-FROM mysql:5.7.26
+FROM mysql:latest
 RUN apt-get update && apt-get install -y cron
 ADD crontab.conf /crontab.conf
 ADD script.sh /script.sh
