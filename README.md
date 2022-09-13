@@ -14,7 +14,7 @@ this will run our scrirpt monthly
 ```
 - Dockerfile:
 ```
-FROM mysql:latest
+FROM mysql:8.0-debian
 RUN apt-get update && apt-get install -y cron
 ADD crontab.conf /crontab.conf
 ADD script.sh /script.sh
@@ -53,8 +53,6 @@ echo "Backup ends: $(date + "%Y-%m-%d %H:%M:%S")"
 it should be a file like this:
 ```
 cron_mysql:
-  build:
-    context: /var/docker/build/cron_mysql
   image: cron_mysql
   container_name: cron_mysql
   restart: unless-stopped
