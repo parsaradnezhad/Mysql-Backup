@@ -9,7 +9,7 @@ We have 4 important file:
 
 this will run our scrirpt monthly
 ```
-0 0 1 * * /script.sh
+$cron_time /script.sh
 ```
 - Dockerfile:
 ```
@@ -52,6 +52,7 @@ cron_mysql:
     - mysql_host="your_mysql_host"
     - mysql_port="your_mysql_port"
     - backup_dir="your_backup_path"
+    - cron_time="your_back_up_time"
   volumes:
     - /etc/localtime:/etc/localtime:ro
     - /var/docker/mysql:/var/lib/mysql
